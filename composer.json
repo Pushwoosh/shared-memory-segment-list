@@ -1,0 +1,21 @@
+{
+    "name": "pushwoosh/shared-memory-segment-list",
+    "description": "Shared memory segment list",
+    "type": "library",
+    "require": {
+        "php": ">=7.0",
+        "ext-shmop": "*",
+        "ext-sysvsem": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pushwoosh\\SharedMemorySegmentList\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Pavel Krush",
+            "email": "neon@pushwoosh.com"
+        }
+    ]
+}
