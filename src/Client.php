@@ -27,7 +27,7 @@ class Client {
 
 
 	public function __construct() {
-		$this->semaphore = \sem_get(self::LOCK_SEM_KEY, 1, 0644, 0);
+		$this->semaphore = \sem_get(self::LOCK_SEM_KEY, 1, 0644, 1);
 		$this->checkAndInit();
 	}
 
