@@ -58,7 +58,7 @@ class SegmentList {
 		$wantSize = $this->getListSizeInBytes($capacity);
 
 		// Try to *create* new segment
-		$segment = new Segment($this->segmentId, "n", 0644, $wantSize);
+		$segment = new Segment($this->segmentId, "n", 0664, $wantSize);
 		if (!$segment->open()) {
 			throw new \RuntimeException(sprintf("Cannot create list header shared segment"));
 		}
@@ -227,7 +227,7 @@ class SegmentList {
 				// this could happen if segment key is already occupied
 				$key = $this->getSegmentKey($i);
 				$segmentSize = $this->calculateSegmentSize(0);
-				$segment = new Segment($key, "n", 0644, $segmentSize);
+				$segment = new Segment($key, "n", 0664, $segmentSize);
 				if (!$segment->open()) {
 					continue;
 				}
@@ -345,7 +345,7 @@ class SegmentList {
 			$segment->delete();
 
 			$newSegmentSize = $this->calculateSegmentSize($length);
-			$segment = new Segment($item->getKey(), "n", 0644, $newSegmentSize);
+			$segment = new Segment($item->getKey(), "n", 0664, $newSegmentSize);
 			if (!$segment->open()) {
 				throw new \RuntimeException("Cannot reallocate segment");
 			}

@@ -15,19 +15,21 @@ class Client {
 	private $semaphore;
 
 	/**
-	 * Shared memory list key.
+	 * @var integer
+	 * Shared memory list key
 	 */
-	const LIST_SHM_KEY = 0x00FFAB01;
+	private $listShmKey;
 
 	/**
+	 * @var int
 	 * Semaphore shared key
 	 */
-	const LOCK_SEM_KEY = 0x00FFAB00;
+	private $lockSemKey;
 
-
-
-	public function __construct() {
-		$this->semaphore = \sem_get(self::LOCK_SEM_KEY, 1, 0644, 1);
+	public function __construct(int $lockSemKey, int $listShmKey) {
+		$this->listShmKey = $listShmKey;
+		$this->lockSemKey = $lockSemKey;
+		$this->semaphore = \sem_get($this->lockSemKey, 1, 0664, 1);
 		$this->checkAndInit();
 	}
 
@@ -37,7 +39,7 @@ class Client {
 	 */
 	private function checkAndInit() {
 		$this->lock();
-		$list = new SegmentList(self::LIST_SHM_KEY);
+		$list = new SegmentList($this->listShmKey);
 		try {
 			$list->read();
 		}
@@ -91,7 +93,7 @@ class Client {
 	public function allocateSegment(): int {
 		$this->lock();
 		try {
-			$list = new SegmentList(self::LIST_SHM_KEY);
+			$list = new SegmentList($this->listShmKey);
 			$id = $list->allocateSegment();
 			return $id;
 		}
@@ -110,7 +112,7 @@ class Client {
 		$this->lock();
 
 		try {
-			$list = new SegmentList(self::LIST_SHM_KEY);
+			$list = new SegmentList($this->listShmKey);
 			$list->releaseSegment($id);
 		}
 		catch (\OutOfBoundsException $oob) {
@@ -124,7 +126,7 @@ class Client {
 	public function writeToSegment(int $id, string $data) {
 		$this->lock();
 		try {
-			$list = new SegmentList(self::LIST_SHM_KEY);
+			$list = new SegmentList($this->listShmKey);
 			$list->writeToSegment($id, $data);
 		}
 		finally {
@@ -139,7 +141,7 @@ class Client {
 		$this->lock();
 		$ret = [];
 		try {
-			$list = new SegmentList(self::LIST_SHM_KEY);
+			$list = new SegmentList($this->listShmKey);
 			$segmentItems = $list->getItems();
 			foreach (array_keys($segmentItems) as $id) {
 				$ret[$id] = $list->readSegment($id);
@@ -155,7 +157,7 @@ class Client {
 		$this->lock();
 
 		try {
-			$list = new SegmentList(self::LIST_SHM_KEY);
+			$list = new SegmentList($this->listShmKey);
 			$list->destroy();
 		}
 		finally {
@@ -170,7 +172,7 @@ class Client {
 		$this->lock();
 
 		try {
-			$list = new SegmentList(self::LIST_SHM_KEY);
+			$list = new SegmentList($this->listShmKey);
 			return $list->getItems();
 		}
 		finally {
@@ -183,7 +185,7 @@ class Client {
 	}
 
 	public function _debugMemoryDump() {
-		$list = new SegmentList(self::LIST_SHM_KEY);
+		$list = new SegmentList($this->listShmKey);
 		$list->_debugMemoryDump();
 	}
 }
