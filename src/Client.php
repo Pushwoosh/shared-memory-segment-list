@@ -61,11 +61,13 @@ class Client {
 	 * @return bool
 	 */
 	private function lock(): bool {
-		if ($this->locked) {
+		if ($this->locked || !\is_resource($this->semaphore)) {
 			return false;
 		}
-		$this->locked = true;
 		$ret = \sem_acquire($this->semaphore, false);
+		if ($ret) {
+			$this->locked = true;
+		}
 		return $ret;
 	}
 
@@ -74,7 +76,7 @@ class Client {
 	 * @return bool
 	 */
 	private function unlock(): bool {
-		if (!$this->locked) {
+		if (!$this->locked || !\is_resource($this->semaphore)) {
 			return false;
 		}
 		$ret = \sem_release($this->semaphore);
